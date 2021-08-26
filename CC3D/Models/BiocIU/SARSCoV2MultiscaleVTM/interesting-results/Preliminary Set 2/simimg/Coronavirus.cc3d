@@ -1,5 +1,0 @@
-<Simulation version="4.1.1">
-   <XMLScript Type="XMLScript">Simulation/Coronavirus.xml</XMLScript>
-   <PythonScript Type="PythonScript">Simulation/Coronavirus.py</PythonScript>
-   <Resource Type="Python">Simulation/CoronavirusSteppables.py</Resource>
-</Simulation>
