@@ -1,0 +1,6 @@
+"Time, hr"	"RDV dose, mg"	"infusion Dur, h"	"AUCinf, h*uM"	"AUClast, h*uM"	"AUC_24h, h*uM"	Cmax uM	C24 uM	"t1/2, hour"		"AUCinf, h*M"	"AUClast, h*M"	"AUC_24h, h*M"	Cmax M	C24 M		"GS-443902 PBMC PK Parameter, Humeniuk et al."								
+0	150	2														https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7361781/								
+199	150	2	297	272		6	3.7	36		3.0E-04	2.7E-04		6.0E-06	3.7E-06		CH8 is Cohort 8								
+																Assuming they meant microMOLAR by uM								
+																								
+																								
