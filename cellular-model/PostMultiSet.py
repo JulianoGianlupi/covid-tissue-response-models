@@ -17,54 +17,28 @@ from GridderDealWOtherVars import *
 
 # Inputs
 
-# Make this a dictionary of dir_spatial_result_rel pointing to appropriate locations and then update __main__
-# _ii_sets = [os.path.join('ODE Solution', f'init_infect_{x}') for x in range(0, 4)]
-# dir_ode_results_rel = list()
-# [dir_ode_results_rel.extend([_ii] * 7) for _ii in _ii_sets]
-# dir_spatial_results_root_abs = r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk\nothing'
-# dir_spatial_results_root_abs = r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk\batch_3'
-# dir_spatial_results_root_abs = r'D:\ddm-unprocessed-data\longer-period\batch_7_0'
-# dir_spatial_results_root_abs = r'D:\ddm-unprocessed-data\nothing_1_remade'
-dir_spatial_results_root_abs = r'D:\ddm-unprocessed-data\longer-period\intercell_var\batch_3_0'
-# dir_spatial_results_root_abs = r'D:\ddm-unprocessed-data\longer-period\b7_redo_1'
-dir_spatial_results_root_abs = r'D:\ddm-unprocessed-data\longer-period\redone_intercell_var\batch_2_0'
-# dir_spatial_results_root_abs = r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk\nothing_10'
-var1_name = 'dose_interval'
-var2_name = 'ic50_multiplier'
+dir_spatial_results_root_abs = r'C:\my_results' # This should point to the folder that contains the set_* folders
+
+
 inputs = get_sim_inputs(dir_spatial_results_root_abs)
 rate_mult = 1 / 2
 rate = rate_mult * 30.4
-dir_spatial_results_rel = get_sets_of_param_value('first_dose', 1
-                                                  , inputs)  # append to this to add the 5th line
-# dir_spatial_results_rel = dir_spatial_results_rel[:23]
-# dir_spatial_results_rel = inputs
 
-# dir_spatial_results_rel = [f'set_{x}' for x in range(1)]
+# change 1 in ```get_sets_of_param_value``` to 0 or 3 depending on the delay to treatment initiation
+dir_spatial_results_rel = get_sets_of_param_value('first_dose', 1, inputs)
 
-#
-# dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-#                                    'longer_period', '0.25_t12', 'first_dose_0_redo')
-dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-                                   'longer_period', 'redone_intercell_var',  'first_dose_1')
-# dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-#                                    'macro_var')
-# dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-#                                    'longer_period', 'no_immune')
-# dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-#                                    'longer_period', 'first_dose_3')
-# dir_root_output_abs = r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk\nothing_remade'
+dir_root_output_abs = dir_spatial_results_root_abs = r'C:\my_results\figures' # This can point anywhere
 
-# dir_root_output_abs = os.path.join(r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk',
-#                                    'nothing_figs', r'ten')
-# dir_root_output_abs = os.path.join(dir_spatial_results_root_abs,
-#                                    'Figs', r'kon_1', 'first_dose_2')
 num_runs = 8
 output_frequency = 1
 screenshot_output_frequency = 50
 plot_sets = False
 plot_grid = True
+
+# the 2 variables that will be the axis of the grid
 var1_name = 'dose_interval'
 var2_name = 'ic50_multiplier'
+
 x_label_str_var = render_defs.var_labels[var1_name]
 y_label_str_var = render_defs.var_labels[var2_name]
 rc_params = render_defs.rc_params_multiset.copy()
