@@ -1,5 +1,5 @@
 import os
-
+from investigation_dictionaries import *
 os.environ["ViralInfectionVTM"] = os.path.dirname(__file__)
 
 # ----------------------------- Setup Instructions ----------------------------- #
@@ -44,75 +44,13 @@ mult_dict = None
 # mult_dict = {'rel_avail4_EC50': [0.01, 0.1, .25, .5, .75, 1, 1.5, 2, 5, 10]}
 # mult_dict = {'rel_avail4_EC50': [1000]}  # for testing
 
-# full_mult_dit = {'first_dose': [0, 6 / 24, 12 / 24, 48 / 24, 72 / 24],  # missing profilaxis. time of 1st dose in days
-#                  'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                  # missing continuous dosing. dose interval in days
-#                  'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                  'kon': [1 / 4, 1 / 2, 1]}
-#
-# # NOTE! each batch should be ran twice, as I'm setting numb of rep to 5
-# ddm_batch_1 = {'first_dose': [0, 6 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1]}
-# ddm_batch_2 = {'first_dose': [12 / 24, 48 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1]}
-# ddm_batch_3 = {'first_dose': [72 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1]}
-#
-# # ______________________________________________
-#
-# ddm_batch_4 = {'first_dose': [0, 6 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 2]}
-# ddm_batch_5 = {'first_dose': [12 / 24, 48 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 2]}
-# ddm_batch_6 = {'first_dose': [72 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 2]}
-#
-# # ______________________________________________
-#
-# ddm_batch_7 = {'first_dose': [0, 6 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 4]}
-# ddm_batch_8 = {'first_dose': [12 / 24, 48 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 4]}
-# ddm_batch_9 = {'first_dose': [72 / 24],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 4]}
-# # ______________________________________________
-# ddm_batch_10 = {'first_dose': [1],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1 / 4]}
-# ddm_batch_11 = {'first_dose': [1],
-#                'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-#                'rel_avail4_EC50': [0.01, 0.1, .5, .75, 1, 1.25],
-#                'kon': [1/2, 1]}
-#
-# mult_dict = ddm_batch_8
+# The dictionaries used are defined in investigation_dictionaries.py and are imported here.
+# If you want to, e.g., simulate treatment starting with the infection of 10 cells with the half life
+# of the antiviral halved you'd do
 
-full_cellularized_dict = {}
+mult_dict = treatment_starts_0_halved_half_life
 
-ic50_multiplier = {'first_dose': [0, 12 / 24, 24 / 24, 48 / 24, 72 / 24, 5],
-                   'dose_interval': [4 / 24],
-                   # missing continuous dosing. dose interval in days
-                   'ic50_multiplier': [0.01, 0.1, 1, 10, 100],
-                   'kon': [1]}
-mult_dict = ic50_multiplier
+
 # Number of replicas to run per parameter set
 num_rep = 10
 # Number of simulations to run in parallel per parameter set
@@ -147,18 +85,17 @@ out_freq = 50
 #               ...
 #           set_1/
 #           ...
-# sweep_output_folder = os.path.abspath(os.path.join(os.path.splitdrive(os.getcwd())[0], '/DrugDosing_test'))
-# sweep_output_folder = r'D:\batch_run_debug'
-sweep_output_folder = r'D:\Google Drive IU\phdStuff\covid 19 project\ddm results\simple-pk\batch_3'
+
+sweep_output_folder = None
 # Option to execute sweep simulations
 #   Set to False to not run simulations
-opt_run_sims = False
+opt_run_sims = True
 # Option to render statistics results
 #   Set to False to not generate statistics figures
-opt_render_stat = False
+opt_render_stat = True
 # Option to render spatial results
 #   Set to False to not generate spatial figures
-opt_render_spat = False
+opt_render_spat = True
 # Optional dump folder
 #   Once all local work is done on a parameter set, the set directory is moved to this location
 #   Set to None to leave results where they are first generated
