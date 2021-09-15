@@ -1,114 +1,23 @@
 # Model inputs
 
-ddm_simple_pk_full_batch = {'first_dose': [0, 1, 3, 5, 7],
-                            'prophylactic_time': [1, 3, 5, 7],
-                            'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                            # missing continuous dosing. dose interval in days
-                            'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                            'kon': [1]}
+from investigation_dictionaries import *
 
-ddm_simple_pk_batch1 = {'first_dose': [0],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1],
-                        't_half_mult': [1],
-                        'kon': [1]}
+# this script takes care of generating jobs and scheduling them using slurm.
 
-ddm_new_var_batch2 = {'first_dose': [1],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1],
-                        't_half_mult': [1],
-                        'kon': [1]}
+# The dictionaries used are defined in investigation_dictionaries.py and are imported here.
+# If you want to, e.g., simulate treatment starting with the infection of 10 cells with the half life
+# of the antiviral halved you'd do
 
-ddm_new_var_batch3 = {'first_dose': [3],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1],
-                        't_half_mult': [1],
-                        'kon': [1]}
+mult_dict = treatment_starts_0_halved_half_life
 
-ddm_simple_pk_batch2 = {'first_dose': [7],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                        'kon': [1]}
-
-ddm_simple_pk_batch3 = {'first_dose': [3],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                        'kon': [1]}
-
-ddm_simple_pk_batch4 = {'first_dose': [1],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                        'kon': [1]}
-
-ddm_simple_pk_batch5 = {'first_dose': [5],  #
-                        # 'prophylactic_time': [1, 3, 5, 7],
-                        'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                        # missing continuous dosing. dose interval in days
-                        'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                        'kon': [1]}
-
-proph_batch1 = {'prophylactic_time': [3],  #
-                'dose_interval': [6 / 24, 8 / 24, 12 / 24, 1],
-                # missing continuous dosing. dose interval in days
-                'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                'kon': [1]}
-
-proph_batch2 = {'prophylactic_time': [1],  #
-                'dose_interval': [6 / 24, 8 / 24, 12 / 24, 1],
-                # missing continuous dosing. dose interval in days
-                'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                'kon': [1]}
-
-proph_batch3 = {'prophylactic_time': [5],
-                'dose_interval': [6 / 24, 8 / 24, 12 / 24, 1],
-                # missing continuous dosing. dose interval in days
-                'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                'kon': [1]}
-
-proph_batch4 = {'prophylactic_time': [7],
-                'dose_interval': [6 / 24, 8 / 24, 12 / 24, 1],
-                # missing continuous dosing. dose interval in days
-                'ic50_multiplier': [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 10],
-                'kon': [1]}
-
-intercell_pk_rate_var = {'first_dose': [0, 3, 5],
-                         # 'prophylactic_time': [1, 3, 5, 7],
-                         'dose_interval': [4 / 24, 6 / 24, 8 / 24, 12 / 24, 1],
-                         # missing continuous dosing. dose interval in days
-                         'ic50_multiplier': [0.05, 0.1, 0.2, 0.5, 1],
-                         'kon': [1]}
-
-nothing_batch = {'first_dose': [0],
-                 'dose_interval': [1],
-                 'ic50_multiplier': [1],
-                 'kon': [1]}
-
-mult_dict = ddm_simple_pk_batch1
 num_rep = 5
 # Model output frequency
 model_out_freq = 1
 # Output frequency of simulation data per simulation replica
 out_freq = 250
-# Root output directory
 
-# sweep_output_folder = r'/N/slate/jferrari/new_pk/corrected_ic50_calc/ddm_batch_1'
-#
-sweep_output_folder = r'/N/slate/jferrari/ddm/simple_pk/vary_t12/batch_1'
-# sweep_output_folder = r'/N/slate/jferrari/ddm/simple_pk/p_batch_1'
-# sweep_output_folder = r'/N/slate/jferrari/ddm/simple_pk/nothing_5'
-# sweep_output_folder = r'D:\batch_run_debug'
+# Root output directory, change to some directory that makes sense to you
+sweep_output_folder = r'/home/my_user/my_files'
 
 
 # Input modules
@@ -131,7 +40,6 @@ BatchRunLib.register_auto_inputs(input_module_name='Models.DrugDosingModel.DrugD
 
 # Carbonate configuration
 from BatchRun.BatchRunPrototyping import carbonate_config_template
-
 carbonate_config_template = carbonate_config_template()
 carbonate_config_template['jn'] = 'ddm_new_pk_set_inv1'
 carbonate_config_template['wh'] = 24
