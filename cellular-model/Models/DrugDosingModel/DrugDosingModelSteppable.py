@@ -326,23 +326,16 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
                     rms_model2['k_out'] = cell2.dict['k_out']
                     self.out_rates.append((cell2.xCOM, cell2.yCOM, rms_model2['k_out']))
 
-        # print(self.in_rates)
-        # print(self.out_rates)
         if prophylactic_treatment:
-            # to be able to write the data from prophylaxis I put the prophylactic code in the
-            # data steppable. May not be elegant but it works
-            # this DOES MEAN that if the write step is not included prophylaxis won't work
             pass
 
         if sanity_run:
             self.rmax = replicating_rate
         else:
             self.rmax = self.get_rmax(cell.sbml.drug_metabolization[self.active_component])
-            # self.rmax = replicating_rate
 
         for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
             vr_model = getattr(cell.sbml, self.vr_model_name)
-            # vr_model.replicating_rate = cell.dict['rmax']
             vr_model['replicating_rate'] = self.rmax
             cell.dict['rmax'] = self.rmax
 
@@ -376,18 +369,7 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
                 for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
                     vr_model = getattr(cell.sbml, 'drug_metabolization')
                     vr_model['first_dose'] = start_time
-                # print(vr_model['time_of_first_dose'])
-        # else:
-        #     pass
-        #     for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
-        #         vr_model = getattr(cell.sbml, 'drug_metabolization')
-        #         break
-        #     print(vr_model['time'], vr_model['time_of_first_dose'], vr_model['time_of_first_dose'] + 23.99) # else:
-        #     pass
-        #     for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
-        #         vr_model = getattr(cell.sbml, 'drug_metabolization')
-        #         break
-        #     print(vr_model['time'], vr_model['time_of_first_dose'], vr_model['time_of_first_dose'] + 23.99)
+
 
         # CELLULARIZATION NOTE!!!
         # For the simple pk each cell has a copy of the model running in themselves
@@ -398,12 +380,7 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
                 cell.dict['rmax'] = self.get_rmax(cell.sbml.drug_metabolization[self.active_component])
                 if cell.type != self.UNINFECTED:
                     vr_model = getattr(cell.sbml, self.vr_model_name)
-                    # vr_model.replicating_rate = cell.dict['rmax']
                     vr_model['replicating_rate'] = cell.dict['rmax']
-                    # cell.sbml.viral_name.replicating_rate = cell.dict['rmax']
-        # print(cell.sbml.drug_metabolization['time'], cell.sbml.drug_metabolization[self.active_component],
-        #       cell.sbml.drug_metabolization['k_in'], cell.sbml.drug_metabolization['Remdes_dose_mol'])
-        # print(vr_model['replicating_rate'])
 
     def get_rna_array(self):
         return np.array([cell.dict['Replicating'] for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING,
@@ -577,19 +554,13 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
         if self.write_ddm_data:
             self.init_writes()
         if prophylactic_treatment:
-            # todo: redo the whole prophylactic method
-            # from cc3d.CompuCellSetup import persistent_globals as pg
-            # for model_name, rr in pg.free_floating_sbml_simulators.items():
-            #     if model_name == 'drug_dosing_model':
-            #         ddm_rr = rr
-            #         break
+
             number_of_prophylactic_steps = int(prophylactic_time / days_2_mcs)
             final_step_idx = list(range(number_of_prophylactic_steps))[-1]
             ddm_rr = self.shared_steppable_vars[drug_dosing_model_key].ddm_rr
             get_rmax = getattr(DrugDosingModelSteppable, 'get_rmax')
             for i in range(number_of_prophylactic_steps):  # let it run for prophylactic_time days
-                # print('time stepping', i)
-                # ddm_rr.timestep()
+
                 # instead of timestepping the global sbml I'll step the cells'. This way if we do microdosimetry
                 # prof code will still be the same
                 for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
@@ -601,11 +572,7 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                         if cell.type != self.UNINFECTED:
                             vr_model = getattr(cell.sbml, self.mvars.vr_model_name)
                             vr_model['replicating_rate'] = cell.dict['rmax']
-                # print(cell.sbml.drug_metabolization['curr_infu_start'],
-                #       cell.sbml.drug_metabolization['first_dose'],
-                #       cell.sbml.drug_metabolization['time'],
-                #       cell.sbml.drug_metabolization[self.mvars.ddm_vars[-1]],
-                #       cell.sbml.drug_metabolization[self.mvars.active_component])
+
 
                 self.shared_steppable_vars['rmax'] = self.mvars.get_rmax(self.sbml.drug_dosing_control[
                                                                              self.mvars.active_component])
@@ -616,29 +583,22 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                 if self.plot_ddm_data:
                     self.do_plots(0)
             print(cell.sbml.drug_metabolization['time'])
-            # for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
-            #     self.mvars.timestep_cell_sbml('drug_metabolization', cell)
-            #     cell.dict['rmax'] = self.shared_steppable_vars['rmax']
+
             if self.write_ddm_data:
                 self.flush_stored_outputs()
                 self.__flush_counter -= 1
 
     def get_metabolite_in_cell(self, cell):
-        # print(cell.sbml.drug_metabolization['Available1'])
         metabolite = cell.sbml.drug_metabolization[self.mvars.ddm_vars[1]]
-        # print(cell.id, l)
         return metabolite
 
     def get_total_metabolite_in_cells(self):
 
         m = []
-        # print(m)
         for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
             cm = self.get_metabolite_in_cell(cell)
             m.append(cm)
-            # for i in range(len(cm)):
-            #     m[i].append(cm[i])
-            #     # print(m[i])
+
 
         return m
 
@@ -669,8 +629,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
         :return None
         """
 
-        # [self.ddm_control_plot.add_data_point(x, s_to_mcs * mcs / 60 / 60, self.sbml.drug_dosing_control[x])
-        #  for x in self.mvars.ddm_vars]
         if prophylactic_treatment and mcs == 0:
             time = mcs - self.shared_steppable_vars['pre_sim_time']
         else:
@@ -702,10 +660,8 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                                                  self.avg_active)
 
             if time > first_dose / days_2_mcs or constant_drug_concentration:
-                # mean, _ = self.get_mean_std_rmax()
                 self.rmax_data_win.add_data_point('rmax', s_to_mcs * mcs / 60 / 60, self.mean_rmax)
 
-            # rna_list = self.get_rna_array()
 
             self.total_rna_plot.add_data_point('RNA_tot', s_to_mcs * mcs / 60 / 60, np.sum(self.rna_list))
             self.mean_rna_plot.add_data_point('RNA_mean', s_to_mcs * mcs / 60 / 60, np.mean(self.rna_list))
@@ -731,17 +687,10 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
             self.ddm_data['intercell_var_out_rate'][mcs] = self.mvars.out_rates
 
         if time < 0:
-            # self.ddm_data['ddm_data'][time] = [self.sbml.drug_dosing_control[x] for x in self.mvars.ddm_vars]
             self.avg_active, _ = self.get_mean_std_active()
             self.avg_prodrug, _ = self.get_mean_std_prodrug()
             self.ddm_data['ddm_data'][time] = [self.avg_prodrug,
                                                self.avg_active]
-            # if self.tracked_cell is not None:
-            #     self.ddm_data['ddm_data'][time] = [self.avg_prodrug,
-            #                                        self.avg_active]
-            # else:
-            #     self.ddm_data['ddm_data'][time] = [0, 0]
-            # self.ddm_data['ddm_data'][time] = [np.NaN, np.NaN]
 
             self.ddm_data['ddm_rmax_data'][time] = [0]
 
@@ -750,17 +699,11 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
             self.ddm_data['ddm_total_viral_production_data'][mcs] = [0]
 
         if time >= 0:
-            # self.ddm_data['ddm_data'][time] = self.get_ddm_data_list()
             self.ddm_data['ddm_data'][time] = [self.avg_prodrug,
                                                self.avg_active]
-            # if self.tracked_cell is not None:
-            #     self.ddm_data['ddm_data'][time] = [self.avg_prodrug,
-            #                                        self.avg_active]
-            # else:
-            #     self.ddm_data['ddm_data'][time] = [np.NaN, np.NaN]
+
 
             mean, _ = self.get_mean_std_rmax()
-            # self.ddm_data['ddm_rmax_data'][time] = [self.shared_steppable_vars['rmax']]
             self.ddm_data['ddm_rmax_data'][time] = [mean]
 
             rna_list = self.get_rna_array()
@@ -796,12 +739,7 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
             self.tracked_cell = self.choose_tracked_cell()
 
         self.total_virus_released += self.shared_steppable_vars['total_virus_release_this_mcs']
-        # if ((self.plot_ddm_data or self.write_ddm_data) and
-        #         (mcs % plot_ddm_data_freq == 0 or mcs % write_ddm_data_freq == 0)):
-        # self.avg_active, self.std_active = self.get_mean_std_active()
-        # self.mean_rmax, self.std_rmax = self.get_mean_std_rmax()
-        # self.rna_list = self.get_rna_array()
-        # pass
+
         calculated_stuff = False
         if self.plot_ddm_data and mcs % plot_ddm_data_freq == 0:
             if not calculated_stuff:
@@ -819,9 +757,7 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                 self.rna_list = self.get_rna_array()
                 calculated_stuff = True
             self.do_writes(mcs)
-            # self.flush_stored_outputs()
-            # self.__flush_counter -= 1
-
+            
     def on_stop(self):
         self.finish()
 
