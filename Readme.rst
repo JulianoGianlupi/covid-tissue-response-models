@@ -6,7 +6,7 @@ COVID-19 (and related viruses) affect tissues and how to determine optimal thera
 
 To run the PK model of (1) you need COPASI and [...]
 
-To run the same ABM investigation done in (1) you can use either your personal computer or a cluster. You need to download CompuCell3D version 4.2.3 (or newer, investigations were done in 4.2.3). For local running you have to run the python script ``cellular-model/batch_run.py``, you can define the output directory in the script. For cluster execution you need to change the output directory in ``cellular-model/batch_exec.py`` and run the script ``cellular-model/batch_exec.sh``. It is set up for slurm scheduling systems. 
+To run the same ABM investigation done in (1) you can use either your personal computer or a cluster. You need to download CompuCell3D version 4.2.3 (or newer, investigations were done in 4.2.3), https://compucell3d.org/SrcBin. For local running you have to run the python script ``cellular-model/batch_run.py``, you can define the output directory in the script. For cluster execution you need to change the output directory in ``cellular-model/batch_exec.py`` and run the script ``cellular-model/batch_exec.sh``. It is set up for slurm scheduling systems. 
 
 All parameters varied and investigated in (1) are in ``cellular-model/investigation_dictionaries.py`` and are imported to ``batch_run.py`` and ``batch_exec.py``, to change the parameters investigated you only need to change the dictionary used as ``mult_dict`` in one of those files. E.g.
 
