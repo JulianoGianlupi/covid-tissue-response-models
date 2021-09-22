@@ -1,8 +1,7 @@
 Antiviral Timing and Potency Effects in a Multiscale Spatial Model of an Epithelial Tissue Patch Infected by SARS-CoV-2 Repository
 =========================
 
-This is a fossilized repository for "Antiviral Timing and Potency Effects in a Multiscale Spatial Model of an Epithelial Tissue Patch Infected by SARS-CoV-2" (1) that hosts the fossilized code used in its investigation. It also hosts a variety mathematical models that focus on improving our understanding of how 
-COVID-19 (and related viruses) affect tissues and how to determine optimal therapeutic intervention targets in a rational manner.
+This is a fossilized repository for "Antiviral Timing and Potency Effects in a Multiscale Spatial Model of an Epithelial Tissue Patch Infected by SARS-CoV-2" (1) that hosts the fossilized code used in its investigation. 
 
 To run the PK model of (1) you need COPASI and [...]
 
