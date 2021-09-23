@@ -42,8 +42,6 @@ def get_all_runs_data(file_name, path, runs, usecols=[1]):
     tcs = np.zeros((8001, len(runs)))
     
     for i, run in enumerate(runs):
-        # print(run)
-        # t = get_viral_load_column(os.path.join(path,run,file_name)).flatten()
         if not os.path.isfile(os.path.join(path,run,file_name)):
             file_name = file_name.split('.')[0]+'.dat'
         tc =  get_viral_load_column(os.path.join(path,run,file_name), usecols=usecols).flatten()
@@ -57,25 +55,16 @@ def get_all_runs_data(file_name, path, runs, usecols=[1]):
 def get_slope(vir_median, fast_containment_thrs):
     log_vir = np.log10(vir_median[fast_containment_thrs:])
     minima = argrelextrema(log_vir, np.less)
-    # minima, _ = find_peaks(-log_vir[fast_containment_thrs:])
-    # maxima = argrelextrema(log_vir[fast_containment_thrs:], np.greater)
     maxima, _ = find_peaks(log_vir)
     
-    # plt.plot(log_vir[fast_containment_thrs:])
     if len(minima[0]) and len(maxima):
-        # print(log_vir[maxima[-1]], log_vir[minima[0][0]])
         slope = log_vir[maxima[-1]] - log_vir[minima[0][0]] 
     elif len(maxima):
-        # print('couldnt find minima')
         slope = log_vir[maxima[-1]] - log_vir[fast_containment_thrs] 
     elif len(minima):
-        # print('couldnt find maxima')
         slope = log_vir[-1] - log_vir[minima[0][0]] 
     else:
-        # print('couldnt find max min')
         slope = log_vir[-1] - log_vir[fast_containment_thrs]
-    # if abs(slope)<0.11:
-    #     print(s)
     return slope
 
 def peaks_slope(vir_median, median_time_start_idx, fast_containment_thrs):
@@ -87,7 +76,6 @@ def peaks_slope(vir_median, median_time_start_idx, fast_containment_thrs):
     else:
         
         slope = log_vir[-1] - np.log10(np.min(vir_median[:fast_containment_thrs//2 - median_time_start_idx]))
-        # np.log10(vir_median[-1]) - np.log10(np.min(vir_median[median_time_start_idx:fast_containment_thrs//2]))
         return slope
 
 
@@ -107,10 +95,7 @@ def get_median_treatment_start(file, path, runs, first_dose, init_infected=5, ti
     new_inf =  np.where(infections_tcs>=0, infections_tcs, 0)
     ever_inf = np.zeros(new_inf.shape)
     ever_inf[0,:] = init_infected + new_inf[0,:]
-    # print(ever_inf[0,:])
     for i, row in enumerate(new_inf[1:]):
-        # print(ever_inf[i,:])
-        # break
         ever_inf[i+1,:] = ever_inf[i,:] + row[:]
     treat_timer_start = np.where(ever_inf>=10, True, False)
     time_start_idx = []
@@ -126,14 +111,11 @@ def determine_outcome(s, runs, path_of_batches, file_vir, file_pop, file_auc, ti
     
     healthy_tcs = get_all_runs_data(file_pop, os.path.join(path_of_batches,s),runs, usecols=[1])
     healthy_median = np.median(healthy_tcs, axis=1)
-    # if s == 'set_56':
-    #     print(healthy_median[-1])
     median_time_start, median_time_start_idx = get_median_treatment_start(
         file_pop, os.path.join(path_of_batches,s),runs, first_dose)
     if healthy_median[-1] <= 10:
         cleared_without_reapearance = cleared_fast = cleared_vir = False
         tendency = 'runaway'
-        # print('less than 10 at end', s)
         return cleared_vir, cleared_without_reapearance, cleared_fast, tendency, median_time_start
     
     healthy_at_treat_start = healthy_median[median_time_start_idx]
@@ -141,7 +123,6 @@ def determine_outcome(s, runs, path_of_batches, file_vir, file_pop, file_auc, ti
     if healthy_median[-1] < 0.5*healthy_at_treat_start:
         cleared_without_reapearance = cleared_fast = cleared_vir = False
         tendency = 'runaway'
-        # print('less than half at end', s)
         return cleared_vir, cleared_without_reapearance, cleared_fast, tendency, median_time_start
     fast_containment_thrs = median_time_start_idx + int(14/time_conv)
     
@@ -152,7 +133,6 @@ def determine_outcome(s, runs, path_of_batches, file_vir, file_pop, file_auc, ti
     cleared_vir = bool(len(low_vir_idx))
     
     if not cleared_vir:
-        #todo AUC here
         
         auc_tcs = get_all_runs_data(file_auc,os.path.join(path_of_batches,s),runs)
         
@@ -165,30 +145,19 @@ def determine_outcome(s, runs, path_of_batches, file_vir, file_pop, file_auc, ti
         not_so_low_vir = np.where(vir_median[median_time_start_idx:]<thrs_vir_secodnary)[0]
         if len(not_so_low_vir):
             return cleared_vir, cleared_without_reapearance, cleared_fast, 'containment', median_time_start
-        # slope = get_slope(vir_median, fast_containment_thrs)
-        # slope = np.log10(vir_median[-1]) - np.log10(np.min(vir_median[median_time_start_idx:fast_containment_thrs//2]))
         slope = peaks_slope(vir_median, median_time_start_idx, fast_containment_thrs)
         auc_thr = 300
         tendency = determine_tendency(slope, chronic_thr, auc_from_14, auc_thr)
-        # print(s, auc_from_14, slope)
-        # if s == 'set_56':
         
-            
-        # print(s, slope,vir_median[-1], np.min(vir_median[median_time_start_idx:fast_containment_thrs]), tendency)
+        
         return cleared_vir, cleared_without_reapearance, cleared_fast, tendency, median_time_start
     else:
         high_vir_idx = np.where(vir_median[median_time_start_idx:]>thrs_vir)[0]
         low_high_vir_idx = np.where(vir_median[median_time_start_idx:]<1.1*thrs_vir)[0]
-        # low_low_vir_idx = np.where(vir_median[median_time_start_idx:]<0.9*thrs_vir)[0]
         consecutive_list = np.array(list(range(np.min(low_high_vir_idx), np.max(low_high_vir_idx)+1)))
-        # maybe 1st part of and there needs changing
         cleared_without_reapearance = ((low_high_vir_idx[-1] == (len(vir_median[median_time_start_idx:])-1)) and 
                                            (len(consecutive_list) == len(low_high_vir_idx)))
         cleared_fast = low_vir_idx[0] < fast_containment_thrs and high_vir_idx[-1] < fast_containment_thrs
-        # if s in ['set_30', 'set_31', 'set_32']:
-        #     print(s, low_vir_idx[0], high_vir_idx[-1], fast_containment_thrs)
-        #     pass
-        
         # if not cleared_without_reapearance or not cleared_fast:
         if not cleared_fast:
             slope = get_slope(vir_median, fast_containment_thrs)
@@ -202,14 +171,6 @@ def determine_outcome(s, runs, path_of_batches, file_vir, file_pop, file_auc, ti
     return None, None, None, None, None
 
 def pick_color(check_list, colors):
-    # cleared without 1
-    # cleared with 2
-    # cleared slow 3
-    # chronic 4
-    # runaway 5
-    # [cleared_vir, cleared_without_reapearance, cleared_fast, tendency]
-    # 'tendency (chronic, runaway, containment)'
-    # colors_256 = [256*c for c in colors]
     if check_list[0] and check_list[2]:
         return colors[0]
     elif check_list[0] and not check_list[2]:
