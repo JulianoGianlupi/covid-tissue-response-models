@@ -16,68 +16,64 @@ import json
 
 
 if __name__ == '__main__':
-    base_path = r'D:\ddm-unprocessed-data\longer-period\redone_intercell_var'
+    base_path = r'D:\ddm-unprocessed-data\longer-period\redone_intercell_var\batch_1_0'
     
-    batches = ['batch_1_0', 'batch_2', 'batch_3', 'batch_4']
+    path_of_sets = base_path
+
+    inputs = get_sim_inputs(path_of_sets)
     
-    for b in batches:
-        print(b)
-        path_of_batches = os.path.join(base_path, b)
     
-        inputs = get_sim_inputs(path_of_batches)
+    first_dose = get_parameters_by_name('first_dose', 
+                                     inputs[0]['__input_dict__'])['first_dose']
+    
+    sets_to_do = get_sets_of_param_value('first_dose', first_dose, inputs)
+    
+    runs = ['run_0', 'run_1', 'run_2', 'run_3', 'run_4', 'run_5', 'run_6', 'run_7']
+    file_vir = 'med_diff_data.csv'
+    file_pop = 'pop_data.csv'
+    file_auc = 'ddm_total_viral_production_data.csv'
+    thrs_vir = 1.3
+    
+    chronic_thr = 1e-4
+    init_infected = 5
+    time_conv = 5 * 60 / 60  / 60  / 24
+    
+    log_slopes = []
+    
+    
+    analysis_dict = {}
+    
+    
+    colors =['#008000', '#0000FF', '#000000', '#FF0000']
+    
+    names = ['Rapid clearance', 'Slow clearance',
+             'Persistent infection', 'Runaway virus']
+    
+    analysis_dict['comment'] = [['cleared virus', 'cleared without reapearance (unused)', 'fast clearance', 
+                                 'tendency (chronic, runaway, containment)'],
+                                'color',
+                                'vir thrs'
+                                'median time start',
+                                'median time start + 14']
+    
+    for s in sets_to_do:
+        print(s)
         
+        cleared_vir, cleared_without_reapearance, \
+            cleared_fast, tendency, median_start_time = determine_outcome(s, runs, path_of_sets, file_vir,
+                                                       file_pop, file_auc, time_conv, chronic_thr, first_dose)
+        cleared_fast = bool(cleared_fast)
+        vir_tcs = get_all_runs_data(file_vir,os.path.join(path_of_sets,s),runs)
         
-        first_dose = get_parameters_by_name('first_dose', 
-                                         inputs[0]['__input_dict__'])['first_dose']
+        vir_median = np.median(vir_tcs, axis=1)
         
-        sets_to_do = get_sets_of_param_value('first_dose', first_dose, inputs)
+        analysis_dict[s] = [[bool(cleared_vir), bool(cleared_without_reapearance), 
+                             bool(cleared_fast), tendency],
+                            None,
+                            thrs_vir,
+                            median_start_time,
+                            median_start_time+14]
+        analysis_dict[s][1] = pick_color(analysis_dict[s][0], colors)
         
-        runs = ['run_0', 'run_1', 'run_2', 'run_3', 'run_4', 'run_5', 'run_6', 'run_7']
-        file_vir = 'med_diff_data.csv'
-        file_pop = 'pop_data.csv'
-        file_auc = 'ddm_total_viral_production_data.csv'
-        thrs_vir = 1.3
-        
-        chronic_thr = 1e-4
-        init_infected = 5
-        time_conv = 5 * 60 / 60  / 60  / 24
-        
-        log_slopes = []
-        
-        
-        analysis_dict = {}
-        
-        
-        colors =['#008000', '#0000FF', '#000000', '#FF0000']
-        
-        names = ['Rapid clearance', 'Slow clearance',
-                 'Persistent infection', 'Runaway virus']
-        
-        analysis_dict['comment'] = [['cleared virus', 'cleared without reapearance (unused)', 'fast clearance', 
-                                     'tendency (chronic, runaway, containment)'],
-                                    'color',
-                                    'vir thrs'
-                                    'median time start',
-                                    'median time start + 14']
-        
-        for s in sets_to_do:
-            print(s)
-            
-            cleared_vir, cleared_without_reapearance, \
-                cleared_fast, tendency, median_start_time = determine_outcome(s, runs, path_of_batches, file_vir,
-                                                           file_pop, file_auc, time_conv, chronic_thr, first_dose)
-            cleared_fast = bool(cleared_fast)
-            vir_tcs = get_all_runs_data(file_vir,os.path.join(path_of_batches,s),runs)
-            
-            vir_median = np.median(vir_tcs, axis=1)
-            
-            analysis_dict[s] = [[bool(cleared_vir), bool(cleared_without_reapearance), 
-                                 bool(cleared_fast), tendency],
-                                None,
-                                thrs_vir,
-                                median_start_time,
-                                median_start_time+14]
-            analysis_dict[s][1] = pick_color(analysis_dict[s][0], colors)
-            
-        with open(os.path.join(path_of_batches, 'set_colors.json'), 'w+') as f:
-            json.dump(analysis_dict, f, indent=4)
+    with open(os.path.join(path_of_sets, 'set_colors.json'), 'w+') as f:
+        json.dump(analysis_dict, f, indent=4)
