@@ -7,6 +7,7 @@ import statistics
 import sys
 import json
 
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import render_defs
 
@@ -14,6 +15,8 @@ sys.path.append(os.path.dirname(__file__))
 import render_defs_2_5D_infection_sweep as proj_render_defs
 
 from GridderDealWOtherVars import *
+
+from grid_color_picker_functions import get_sets_of_param_value
 
 # Inputs
 
@@ -24,10 +27,11 @@ inputs = get_sim_inputs(dir_spatial_results_root_abs)
 rate_mult = 1 / 2
 rate = rate_mult * 30.4
 
-# change 1 in ```get_sets_of_param_value``` to 0 or 3 depending on the delay to treatment initiation
-dir_spatial_results_rel = get_sets_of_param_value('first_dose', 1, inputs)
+first_dose = get_parameters_by_name('first_dose', inputs[0]['__input_dict__'])['first_dose']
+    
+dir_spatial_results_rel = get_sets_of_param_value('first_dose', first_dose, inputs)
 
-dir_root_output_abs = dir_spatial_results_root_abs = r'C:\my_results\figures' # This can point anywhere
+dir_root_output_abs = os.path.join(dir_spatial_results_root_abs, 'figures') # This can point anywhere
 
 num_runs = 8
 output_frequency = 1
