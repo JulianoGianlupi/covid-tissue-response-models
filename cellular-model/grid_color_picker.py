@@ -16,9 +16,8 @@ import json
 
 
 if __name__ == '__main__':
-    base_path = r'D:\ddm-unprocessed-data\longer-period\redone_intercell_var\batch_1_0'
     
-    path_of_sets = base_path
+    path_of_sets = r'C:\my_results' # This should point to the folder that contains the set_* folders
 
     inputs = get_sim_inputs(path_of_sets)
     
@@ -29,6 +28,7 @@ if __name__ == '__main__':
     sets_to_do = get_sets_of_param_value('first_dose', first_dose, inputs)
     
     runs = ['run_0', 'run_1', 'run_2', 'run_3', 'run_4', 'run_5', 'run_6', 'run_7']
+    
     file_vir = 'med_diff_data.csv'
     file_pop = 'pop_data.csv'
     file_auc = 'ddm_total_viral_production_data.csv'
