@@ -22,8 +22,7 @@ if __name__ == '__main__':
     inputs = get_sim_inputs(path_of_sets)
     
     
-    first_dose = get_parameters_by_name('first_dose', 
-                                     inputs[0]['__input_dict__'])['first_dose']
+    first_dose = get_parameters_by_name('first_dose', inputs[0]['__input_dict__'])['first_dose']
     
     sets_to_do = get_sets_of_param_value('first_dose', first_dose, inputs)
     
