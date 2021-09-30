@@ -1,13 +1,11 @@
 import sys
 from numpy import log
-from .DDMUtils import SetImporter
 
 try:
     from Simulation.ViralInfectionVTMModelInputs import s_to_mcs, um_to_lat_width
 except ModuleNotFoundError:
     from ViralInfectionVTMModelInputs import s_to_mcs, um_to_lat_width
 
-rate_sets_dict = SetImporter.import_sets_as_dict()
 
 __param_desc__ = {}
 
