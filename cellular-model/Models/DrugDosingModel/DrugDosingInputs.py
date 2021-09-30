@@ -1,31 +1,15 @@
 import sys
 from numpy import log
 from .DDMUtils import SetImporter
-# import os
-# sys.path.append(os.path.join(os.environ["ViralInfectionVTM"], "Simulation"))
-# sys.path.append(os.environ["ViralInfectionVTM"])
-# sys.path.insert(1, r'../../Simulation')
-# sys.path.append(r'../../Simulation')
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 try:
     from Simulation.ViralInfectionVTMModelInputs import s_to_mcs, um_to_lat_width
 except ModuleNotFoundError:
     from ViralInfectionVTMModelInputs import s_to_mcs, um_to_lat_width
-# from ViralInfectionVTMModelInputs import s_to_mcs, um_to_lat_width
+
 rate_sets_dict = SetImporter.import_sets_as_dict()
 
 __param_desc__ = {}
-
-# what rates set to use
-
-__param_desc__['set_numb'] = 'chooses which rates to use'
-set_numb = 1
-
-set_name = 'set' + str(set_numb)
-
-rs = rate_sets_dict[set_name]  # rates now can be accessed by rs.rate
-
-# remdesivir metabolites names
 
 __param_desc__['remdesivir_name'] = 'proper molecular name, from https://doi.org/10.1111/cts.12840 '
 
@@ -91,28 +75,9 @@ use_alignment = True
 __param_desc__['alignt_at_pop'] = 'N infected cells for alignment'
 alignt_at_pop = 10
 
-# initial drug concentrations
-__param_desc__['Drug_pls'] = 'Concentration of Drug already in plasma'
-Drug_pls = 0
-
-__param_desc__['Drug_peri'] = 'Concentration of Drug already in the periphery'
-Drug_peri = 0
-
-__param_desc__['Drug_lung'] = 'Concentration of Drug already in the lungs'
-Drug_lung = 0
-
-__param_desc__['Ala_met'] = 'Concentration of alanine metabolite already in the system'
-Ala_met = 0
-
-__param_desc__['NMP_met'] = 'Concentration of NMP metabolite already in the system'
-NMP_met = 0
-
-__param_desc__['NTP_met'] = 'Concentration of NTP metabolite already in the system'
-NTP_met = 0
-
 # dosing
 __param_desc__['first_dose'] = 'time of first dose in days'
-first_dose = 1
+first_dose = 0*1
 if prophylactic_treatment:
     first_dose = 0
 

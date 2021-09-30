@@ -1,6 +1,5 @@
 # Model effect of Drug Dosing in viral replication
 # Written by J. F. Gianlupi, M.Sci.
-# #todo write some more
 # Model parameters are specified in DrugDosingInputs.py
 #
 # DrugDosingModelSteppable
@@ -28,8 +27,6 @@ except ModuleNotFoundError:
         r_half, translating_rate, packing_rate, secretion_rate
 import ViralInfectionVTMLib
 from ViralInfectionVTMSteppableBasePy import *
-# ViralInfectionVTMSteppableBasePy.vr_model_name
-# from ViralInfectionVTMSteppableBasePy import vr_model_name
 
 from ViralInfectionVTMSteppables import SimDataSteppable
 from nCoVToolkit import nCoVUtils
@@ -42,10 +39,6 @@ drug_dosing_model_key = "drug_dose_steppable"
 
 days_2_mcs = s_to_mcs / 60 / 60 / 24
 hour_2_mcs = s_to_mcs / 60 / 60
-
-
-# global active_met_ic50
-# active_met_ic50 = active_met_ic50
 
 
 def set_simple_pk_full(infusion_amount, time_of_1st_dose, dose_interval, dose_end, first_dose_doubler, observed_t1_2,
@@ -189,8 +182,6 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
         import Models.DrugDosingModel.DrugDosingInputs as DrugDosingInputs
         BatchRunLib.apply_external_multipliers(__name__, DrugDosingInputs)
 
-        # self.initial_dose = initial_dose / (24. / dose_interval)
-
         self.drug_dosing_model_key = drug_dosing_model_key
 
         self.set_drug_model_string = set_simple_pk_full
@@ -199,25 +190,18 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
         self.plot_ddm_data = plot_ddm_data_freq > 0
         self.write_ddm_data = write_ddm_data_freq > 0
 
-        self.max_avail4 = 2.32417475e-01 * dose  # see comment just before steppable definition
-
         self.hill_k = None
 
-        self.drug_model_string = None
+        # self.drug_model_string = None
 
         self.ddm_vars = None
-
-        self.drug_metabolization_string = None
-
-        self.control_string = None
-
         self.rmax = None
 
         self.vr_model_name = ViralInfectionVTMLib.vr_model_name
 
         self.ddm_rr = None
 
-        self.control_rr = None
+        # self.control_rr = None
         self.active_component = None
 
         self.alignment_not_done = True
@@ -258,10 +242,9 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
         rr.timestep()
 
     def start(self):
-        # a = active_met_ic50
-        # print(ic50_multiplier, active_met_ic50)
+
         self.ever_infected = len(self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING))
-        # print(self.ever_infected)
+
         self.hill_k = active_met_ic50 * ic50_multiplier
         if use_alignment and not prophylactic_treatment:
             print(dose / (24. / dose_interval))
@@ -370,7 +353,6 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
                     vr_model = getattr(cell.sbml, 'drug_metabolization')
                     vr_model['first_dose'] = start_time
 
-
         # CELLULARIZATION NOTE!!!
         # For the simple pk each cell has a copy of the model running in themselves
         self.ddm_rr.timestep()
@@ -404,7 +386,6 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
         if cell_does_uptake and cell.type == self.UNINFECTED:
             cell.type = self.INFECTED
             self.ever_infected += 1
-            # print(self.ever_infected)
             cell.dict['ck_production'] = max_ck_secrete_infect
             self.load_viral_replication_model(cell=cell, vr_step_size=vr_step_size,
                                               unpacking_rate=unpacking_rate,
@@ -524,8 +505,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
         self.mean_rna_plot.add_plot('RNA_mean', style='Dots', color='red', size=5)
 
     def init_writes(self):
-        # init save data
-        # if self.write_ddm_data:
         from pathlib import Path
         for key, rel_path in self.data_files.items():
             self.data_files[key] = Path(self.output_dir).joinpath(rel_path)
@@ -533,8 +512,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                 pass
 
     def choose_tracked_cell(self):
-        # for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
-        #     break
 
         cells = [cell for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED)]
         if len(cells):
@@ -573,7 +550,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                             vr_model = getattr(cell.sbml, self.mvars.vr_model_name)
                             vr_model['replicating_rate'] = cell.dict['rmax']
 
-
                 self.shared_steppable_vars['rmax'] = self.mvars.get_rmax(self.sbml.drug_dosing_control[
                                                                              self.mvars.active_component])
 
@@ -598,7 +574,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
         for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED):
             cm = self.get_metabolite_in_cell(cell)
             m.append(cm)
-
 
         return m
 
@@ -662,7 +637,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
             if time > first_dose / days_2_mcs or constant_drug_concentration:
                 self.rmax_data_win.add_data_point('rmax', s_to_mcs * mcs / 60 / 60, self.mean_rmax)
 
-
             self.total_rna_plot.add_data_point('RNA_tot', s_to_mcs * mcs / 60 / 60, np.sum(self.rna_list))
             self.mean_rna_plot.add_data_point('RNA_mean', s_to_mcs * mcs / 60 / 60, np.mean(self.rna_list))
 
@@ -701,7 +675,6 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
         if time >= 0:
             self.ddm_data['ddm_data'][time] = [self.avg_prodrug,
                                                self.avg_active]
-
 
             mean, _ = self.get_mean_std_rmax()
             self.ddm_data['ddm_rmax_data'][time] = [mean]
@@ -757,7 +730,7 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                 self.rna_list = self.get_rna_array()
                 calculated_stuff = True
             self.do_writes(mcs)
-            
+
     def on_stop(self):
         self.finish()
 
