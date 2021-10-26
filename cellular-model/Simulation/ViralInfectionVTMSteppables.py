@@ -59,6 +59,11 @@ class CellsInitializerSteppable(ViralInfectionVTMSteppableBasePy):
                 cell.dict[ViralInfectionVTMLib.vrl_key] = False
                 ViralInfectionVTMLib.reset_viral_replication_variables(cell=cell)
                 cell.dict['Receptors'] = initial_unbound_receptors
+                cell.dict['virus_released'] = 0
+
+                cell.dict['time_of_death'] = None
+                cell.dict['time_of_infection'] = None
+                cell.dict['time_of_virus_release'] = None
                 self.load_viral_replication_model(cell=cell, vr_step_size=vr_step_size,
                                                   unpacking_rate=unpacking_rate,
                                                   replicating_rate=replicating_rate,
@@ -85,6 +90,7 @@ class CellsInitializerSteppable(ViralInfectionVTMSteppableBasePy):
         for cell in cells_to_infect:
             cell.dict['Unpacking'] = 1.0
             cell.type = self.INFECTED
+            cell.dict['time_of_infection'] = 0
 
             self.load_viral_replication_model(cell=cell, vr_step_size=vr_step_size,
                                               unpacking_rate=unpacking_rate,
@@ -117,7 +123,6 @@ class CellsInitializerSteppable(ViralInfectionVTMSteppableBasePy):
             cell.dict['tot_ck_upt'] = 0
 
 
-# TODO Add actual uptake from the field based on discussion with James
 class ViralReplicationSteppable(ViralInfectionVTMSteppableBasePy):
     """
     Implements viral replication module
@@ -155,6 +160,7 @@ class ViralReplicationSteppable(ViralInfectionVTMSteppableBasePy):
 
             # Test for infection secretion
             if cell.dict['Assembled'] > cell_infection_threshold:
+                cell.dict['time_of_virus_release'] = mcs
                 cell.type = self.VIRUSRELEASING
                 ViralInfectionVTMLib.enable_viral_secretion(cell=cell, secretion_rate=secretion_rate)
 
@@ -166,7 +172,7 @@ class ViralReplicationSteppable(ViralInfectionVTMSteppableBasePy):
                     np.random.random() < nCoVUtils.hill_equation(cell.dict['Assembled'],
                                                                  diss_coeff_uptake_apo,
                                                                  hill_coeff_uptake_apo):
-                self.kill_cell(cell=cell)
+                self.kill_cell_with_time_of_death(cell=cell, mcs=mcs)
                 self.simdata_steppable.track_death_viral()
 
 
@@ -251,6 +257,7 @@ class ViralSecretionSteppable(ViralInfectionVTMSteppableBasePy):
             viral_amount_com = self.field.Virus[cell.xCOM, cell.yCOM, cell.zCOM] * cell.volume
             cell_does_uptake, uptake_amount = self.vim_steppable.do_cell_internalization(cell, viral_amount_com)
             if cell_does_uptake:
+                cell.dict['time_of_infection'] = mcs
                 uptake = secretor.uptakeInsideCellTotalCount(cell, 1E12, uptake_amount / cell.volume)
                 cell.dict['Uptake'] = abs(uptake.tot_amount)
                 self.vim_steppable.update_cell_receptors(cell=cell, receptors_increment=-cell.dict['Uptake'] * s_to_mcs)
@@ -259,6 +266,7 @@ class ViralSecretionSteppable(ViralInfectionVTMSteppableBasePy):
             if cell.type == self.VIRUSRELEASING:
                 sec_amount = ViralInfectionVTMLib.get_viral_replication_cell_secretion(cell=cell)
                 secretor.secreteInsideCellTotalCount(cell, sec_amount / cell.volume)
+                cell.dict['virus_released'] += sec_amount
                 self.shared_steppable_vars['total_virus_release_this_mcs'] += sec_amount
 
 
@@ -283,7 +291,7 @@ class ImmuneCellKillingSteppable(ViralInfectionVTMSteppableBasePy):
             for neighbor, common_surface_area in self.get_cell_neighbor_data_list(cell):
                 if neighbor:
                     if neighbor.type == self.IMMUNECELL:
-                        self.kill_cell(cell=cell)
+                        self.kill_cell_with_time_of_death(cell=cell, mcs=mcs)
                         killed_cells.append(cell)
                         self.simdata_steppable.track_death_contact()
 
@@ -294,7 +302,8 @@ class ImmuneCellKillingSteppable(ViralInfectionVTMSteppableBasePy):
                     if neighbor.type in [self.INFECTED, self.VIRUSRELEASING, self.UNINFECTED]:
                         p_bystander_effect = np.random.random()
                         if p_bystander_effect < bystander_effect:
-                            self.kill_cell(cell=neighbor)
+                            self.kill_cell_with_time_of_death(cell=neighbor, mcs=mcs)
+                            # self.kill_cell(cell=neighbor)
                             self.simdata_steppable.track_death_bystander()
 
 
@@ -1090,7 +1099,7 @@ class oxidationAgentModelSteppable(ViralInfectionVTMSteppableBasePy):
 
             seen_field = self.total_seen_field(self.field.oxidator, cell)
             if seen_field >= oxi_death_thr:
-                self.kill_cell(cell=cell)
+                self.kill_cell_with_time_of_death(cell=cell, mcs=mcs)
                 cell.dict['oxi_killed'] = True
                 self.simdata_steppable.track_death_oxi_field()
 

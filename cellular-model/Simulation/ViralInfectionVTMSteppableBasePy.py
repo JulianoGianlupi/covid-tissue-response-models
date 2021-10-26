@@ -155,6 +155,13 @@ class ViralInfectionVTMSteppableBasePy(nCoVSteppableBase):
 
         return tot_field
 
+    def kill_cell_with_time_of_death(self, cell, mcs):
+
+        # save time of death
+        cell.dict['time_of_death'] = mcs
+
+        self.kill_cell(cell=cell)
+
     def kill_cell(self, cell):
         """
         Model-specific cell death routines

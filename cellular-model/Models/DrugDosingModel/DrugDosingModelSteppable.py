@@ -14,6 +14,7 @@
 import sys
 import os
 from cc3d.core.PySteppables import *
+import json
 
 sys.path.append(os.path.join(os.environ["ViralInfectionVTM"], "Simulation"))
 sys.path.append(os.environ["ViralInfectionVTM"])
@@ -280,6 +281,11 @@ class DrugDosingModelSteppable(ViralInfectionVTMSteppableBasePy):
             for id1, id2 in zip(ids1, ids2):
                 cell1 = self.fetch_cell_by_id(id1)
                 cell2 = self.fetch_cell_by_id(id2)
+                cell1.dict['rmd_in_rate'] = 1
+                cell2.dict['rmd_in_rate'] = 1
+
+                cell1.dict['rmd_out_rate'] = 1
+                cell2.dict['rmd_out_rate'] = 1
                 rms_model1 = getattr(cell1.sbml, 'drug_metabolization')
                 rms_model2 = getattr(cell2.sbml, 'drug_metabolization')
                 if 'rmd_in_rate' in params_to_var:
@@ -731,9 +737,36 @@ class DrugDosingDataFieldsPlots(ViralInfectionVTMSteppableBasePy):
                 calculated_stuff = True
             self.do_writes(mcs)
 
+    def save_per_cell_met_rates_time_of_death_and_viral_auc(self):
+
+        data_dict = {'cell_id': [],
+                     'relative_in_rate': [],
+                     'time_of_infection': [],
+                     'time_of_virus_release': [],
+                     'relative_out_rate': [],
+                     'time_of_death': [],
+                     'virus_auc': []
+                     }
+        for cell in self.cell_list_by_type(self.INFECTED, self.VIRUSRELEASING, self.DYING):
+            data_dict['cell_id'].append(cell.id)
+            if intercell_var:
+                data_dict['relative_in_rate'].append(cell.dict['rmd_in_rate'])
+                data_dict['relative_out_rate'].append(cell.dict['rmd_out_rate'])
+            data_dict['time_of_infection'].append(cell.dict['time_of_infection'])
+            data_dict['time_of_virus_release'].append(cell.dict['time_of_virus_release'])
+            data_dict['time_of_death'].append(cell.dict['time_of_death'])
+            data_dict['virus_auc'].append(cell.dict['virus_released'])
+            pass
+
+        path_json = Path(self.output_dir).joinpath('per_cell_viral_production.json')
+
+        with open(path_json, 'w+') as outf:
+            json.dump(data_dict, outf)
+
     def on_stop(self):
         self.finish()
 
     def finish(self):
         if self.write_ddm_data:
+            self.save_per_cell_met_rates_time_of_death_and_viral_auc()
             self.flush_stored_outputs()
